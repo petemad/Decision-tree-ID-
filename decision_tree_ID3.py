@@ -136,12 +136,6 @@ def predict(dataset, record):
         return predict(data, record)
 
 
-def build_ID3_tree(train_dataset):
-    root = choose_root(train_dataset)
-    v_d_map = value_data_map(train_dataset, root)
-    for v in v_d_map:
-
-
 # Apply the algorithm to the cardio dataset
 cardio_data = pd.read_csv('./cardio_train.csv', delimiter=';')
 cardio_data = cardio_data.drop('id', axis=1)
