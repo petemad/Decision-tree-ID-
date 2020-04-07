@@ -143,7 +143,7 @@ def build_ID3_tree(train_dataset):
 
 
 # Apply the algorithm to the cardio dataset
-cardio_data = pd.read_csv('./assignment/cardio_train.csv', delimiter=';')
+cardio_data = pd.read_csv('./cardio_train.csv', delimiter=';')
 cardio_data = cardio_data.drop('id', axis=1)
 age = cardio_data['age']
 max_age = np.max(age)
