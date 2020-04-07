@@ -126,7 +126,11 @@ def predict(dataset, record):
     root = choose_root(dataset)
     v_d_map = value_data_map(dataset, root)
     c = np.asarray(record[root])[0]
-    data = v_d_map[c]
+    try:  # some error rise say that this class doesn't exist in the dictionary.
+        data = v_d_map[c]
+    except:
+        prob = calculate_probability(1, get_class_column(dataset))
+        return prob
     if can_decide(record, v_d_map, root) == 'prob':
         prob = calculate_probability(1, get_class_column(data))
         return prob
@@ -157,7 +161,6 @@ for i in range(len(age)):
         update = (min_age + max_age + (4 * diff_age)) / 2
     cardio_data.at[i, 'age'] = update
 
-
 height = cardio_data['height']
 max_h = np.max(height)
 min_h = np.min(height)
@@ -172,7 +175,6 @@ for i in range(len(height)):
     elif (min_h + (3 * diff_h)) <= cardio_data['height'][i] < (min_h + (4 * diff_h)):
         update = ((2 * min_h) + (5 * diff_h)) / 2
     cardio_data.at[i, 'height'] = update
-
 
 weight = cardio_data['weight']
 max_w = np.max(weight)
@@ -212,22 +214,21 @@ ap_lo = cardio_data['ap_lo']
 for i in range(len(ap_lo)):
     # edit negative values
     if ap_lo[i] < 0:
-        cardio_data.at[i, 'ap_lo'] = cardio_data.at[i, 'ap_lo']*-1
+        cardio_data.at[i, 'ap_lo'] = cardio_data.at[i, 'ap_lo'] * -1
     if ap_lo[i] > 5000:
-        cardio_data.at[i, 'ap_lo'] = cardio_data.at[i, 'ap_lo']/100
+        cardio_data.at[i, 'ap_lo'] = cardio_data.at[i, 'ap_lo'] / 100
     if ap_lo[i] > 500:
-        cardio_data.at[i, 'ap_lo'] = cardio_data.at[i, 'ap_lo']/10
+        cardio_data.at[i, 'ap_lo'] = cardio_data.at[i, 'ap_lo'] / 10
 ap_lo_meam = int(np.mean(ap_lo))
 for i in range(len(ap_lo)):
     if ap_lo[i] == 0 or ap_lo[i] < 20:
         cardio_data.at[i, 'ap_lo'] = ap_lo_meam
     if 0 < ap_lo[i] < 100:
-        cardio_data.at[i, 'ap_lo'] = (ap_lo[i] // 10)*10
+        cardio_data.at[i, 'ap_lo'] = (ap_lo[i] // 10) * 10
 
-cardio_data_train = cardio_data.copy()
-train_set = cardio_data.sample(frac=0.9, random_state=0)
-test_set = cardio_data_train.drop(train_set.index)
-test_set_labels = test_set.pop('cardio')
+train_set = cardio_data[1000:10000]
+test_set = cardio_data[0:999]
+test_set_labels = np.asarray(test_set.pop('cardio'))
 result_confidence_level = []
 start_time = time.time()
 for i in range(len(test_set)):
@@ -242,11 +243,9 @@ accuracy = 0
 for i in range(len(result_labels)):
     if result_labels[i] == test_set_labels[i]:
         accuracy = accuracy + 1
-print("--- accuracy = % " % (accuracy/7000))
+print(accuracy / len(result_labels))
 result_df = pd.DataFrame(zip(result_labels, result_confidence_level, test_set_labels),
                          columns=['Result labels', 'Confidence level', 'Actual labels'])
 compression_opts = dict(method='zip', archive_name='result.csv')
 result_df.to_csv('results.zip', index=False, compression=compression_opts)
 print("--- %s seconds ---" % (time.time() - start_time))
-
-
