@@ -231,6 +231,7 @@ test_set = cardio_data[0:999]
 test_set_labels = np.asarray(test_set.pop('cardio'))
 result_confidence_level = []
 start_time = time.time()
+## on decision tree 
 for i in range(len(test_set)):
     result_confidence_level.append(predict(train_set, test_set.iloc[[i]]))
 result_labels = []
